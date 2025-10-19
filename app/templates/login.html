@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SAP Monitoring | Login</title>
+  <link rel="stylesheet" href="/static/css/app.css"/>
+</head>
+<body>
+  <div class="container narrow">
+    <h2>Sign in</h2>
+    <form id="loginForm">
+      <label>Username</label>
+      <input type="text" name="username" required />
+      <label>Password</label>
+      <input type="password" name="password" required />
+      <button type="submit">Login</button>
+      <div id="loginError" class="error" style="display:none"></div>
+    </form>
+  </div>
+  <script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const payload = { username: form.username.value, password: form.password.value };
+    const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (res.ok) { window.location.href = '/dashboard'; }
+    else {
+      const j = await res.json().catch(()=>({error:'Login failed'}));
+      const el = document.getElementById('loginError'); el.textContent = j.error || 'Login failed'; el.style.display='block';
+    }
+  });
+  </script>
+</body>
+</html>

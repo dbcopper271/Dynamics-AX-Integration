@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SAP Monitoring | Dashboard</title>
+  <link rel="stylesheet" href="/static/css/app.css"/>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">SAP Monitoring Dashboard</div>
+    <div class="spacer"></div>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <div class="container">
+    <section>
+      <h3>Customer</h3>
+      <div class="flex-row">
+        <select id="customerSelect"></select>
+        <button id="newCustomerBtn">+ New</button>
+        <button id="editCustomerBtn">Edit</button>
+        <button id="deleteCustomerBtn">Delete</button>
+      </div>
+      <div id="newCustomerForm" class="card" style="display:none">
+        <div class="grid">
+          <label>Name <input id="c_name"/></label>
+          <label>Code <input id="c_code"/></label>
+          <label>Contact <input id="c_contact"/></label>
+          <label>SID <input id="c_sid"/></label>
+          <label>Environment
+            <select id="c_env">
+              <option>Production</option>
+              <option>Development</option>
+              <option>QA</option>
+              <option>Sandbox</option>
+            </select>
+          </label>
+        </div>
+        <button id="saveCustomerBtn">Save</button>
+      </div>
+    </section>
+
+    <section>
+      <h3>Items</h3>
+      <input id="searchInput" placeholder="Search items..."/>
+      <div class="grid-2">
+        <div>
+          <h4>Catalog</h4>
+          <div id="catalog" class="cards scroll"></div>
+        </div>
+        <div>
+          <h4>Assigned</h4>
+          <div id="assigned" class="cards scroll droppable"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Daily Input</h3>
+      <div class="flex-row">
+        <input id="dateInput" type="date"/>
+        <button id="loadInputsBtn">Load</button>
+      </div>
+      <div id="overdueNotice" class="error" style="display:none"></div>
+      <div id="inputs" class="cards"></div>
+    </section>
+
+    <section>
+      <h3>Reports</h3>
+      <div class="flex-row">
+        <input id="startDate" type="date"/>
+        <input id="endDate" type="date"/>
+        <select id="periodType">
+          <option>Daily</option>
+          <option>Monthly</option>
+          <option>Quarterly</option>
+          <option>Yearly</option>
+        </select>
+        <button id="genReportBtn">Generate</button>
+      </div>
+      <div id="reportLink"></div>
+    </section>
+
+    <section>
+      <h3>Notifications</h3>
+      <div class="flex-row">
+        <button id="checkAlertsBtn">Check Alerts</button>
+        <button id="sendAlertsBtn">Send Alerts</button>
+      </div>
+      <div id="alerts"></div>
+    </section>
+  </div>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
