@@ -12,14 +12,16 @@ namespace MonitoringTool.Alerts;
 public class AlertManager
 {
     private readonly IReadOnlyList<IAlertProvider> _providers;
+    private readonly AlertHistory _history;
     private readonly ILogger<AlertManager> _logger;
     private readonly Dictionary<string, HealthStatus> _previousStates = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public AlertManager(IEnumerable<IAlertProvider> providers, ILogger<AlertManager> logger)
+    public AlertManager(IEnumerable<IAlertProvider> providers, AlertHistory history, ILogger<AlertManager> logger)
     {
         _providers = providers.ToList();
-        _logger = logger;
+        _history   = history;
+        _logger    = logger;
     }
 
     /// <summary>
@@ -61,6 +63,7 @@ public class AlertManager
                 "State change: [{System}] {Prev} → {Current}",
                 result.SystemName, previous, result.Status);
 
+            _history.Add(alert);
             await DispatchAsync(alert, ct);
         }
         finally
