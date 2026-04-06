@@ -51,6 +51,22 @@ public class SapSystemConfig
     /// <summary>Monitor work process availability.</summary>
     public bool MonitorWorkProcesses { get; set; } = true;
     public int MinFreeWorkProcessPercent { get; set; } = 20;
+
+    /// <summary>Monitor cancelled batch jobs.</summary>
+    public bool MonitorBatchJobs { get; set; } = true;
+    public int BatchJobWindowMinutes { get; set; } = 60;
+    public int BatchJobCancelledWarningThreshold { get; set; } = 1;
+
+    /// <summary>Monitor IDoc error rate.</summary>
+    public bool MonitorIdocs { get; set; } = true;
+    public int IdocWindowMinutes { get; set; } = 60;
+    public double IdocErrorRateWarningPct { get; set; } = 5.0;
+    public double IdocErrorRateCriticalPct { get; set; } = 20.0;
+
+    /// <summary>Monitor SAP system log (SM21) for Abort/Error messages.</summary>
+    public bool MonitorSyslog { get; set; } = true;
+    public int SyslogWindowMinutes { get; set; } = 30;
+    public int SyslogErrorWarningThreshold { get; set; } = 10;
 }
 
 // ── Dynamics AX / D365 ───────────────────────────────────────────────────────

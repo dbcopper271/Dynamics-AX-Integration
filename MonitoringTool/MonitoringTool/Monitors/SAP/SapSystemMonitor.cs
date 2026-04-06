@@ -118,6 +118,81 @@ public class SapSystemMonitor : BaseMonitor
             }
         }
 
+        // 6. Batch job cancellations
+        if (_config.MonitorBatchJobs)
+        {
+            var (cancelled, active, bjError) = await _rfcClient.GetBatchJobStatusAsync(
+                _config.BatchJobWindowMinutes, cancellationToken);
+            if (bjError != null)
+            {
+                issues.Add($"Batch job check failed: {bjError}");
+            }
+            else
+            {
+                result.Metrics["BatchJobsCancelled"] = cancelled;
+                result.Metrics["BatchJobsActive"]    = active;
+                if (cancelled >= _config.BatchJobCancelledWarningThreshold)
+                {
+                    issues.Add($"{cancelled} batch job(s) cancelled in last {_config.BatchJobWindowMinutes} min");
+                    if (status < HealthStatus.Degraded) status = HealthStatus.Degraded;
+                }
+            }
+        }
+
+        // 7. IDoc error rate
+        if (_config.MonitorIdocs)
+        {
+            var (errorRate, errorCount, totalIdocs, idocError) = await _rfcClient.GetIdocErrorRateAsync(
+                _config.IdocWindowMinutes, cancellationToken);
+            if (idocError != null)
+            {
+                issues.Add($"IDoc check failed: {idocError}");
+            }
+            else
+            {
+                result.Metrics["IdocTotal"]        = totalIdocs;
+                result.Metrics["IdocErrors"]       = errorCount;
+                result.Metrics["IdocErrorRatePct"] = errorRate;
+                if (errorRate >= _config.IdocErrorRateCriticalPct)
+                {
+                    issues.Add($"IDoc error rate {errorRate:F1}% (critical threshold {_config.IdocErrorRateCriticalPct}%)");
+                    if (status < HealthStatus.Unhealthy) status = HealthStatus.Unhealthy;
+                }
+                else if (errorRate >= _config.IdocErrorRateWarningPct)
+                {
+                    issues.Add($"IDoc error rate {errorRate:F1}% (warning threshold {_config.IdocErrorRateWarningPct}%)");
+                    if (status < HealthStatus.Degraded) status = HealthStatus.Degraded;
+                }
+            }
+        }
+
+        // 8. Syslog errors
+        if (_config.MonitorSyslog)
+        {
+            var (aborts, errors, warns, slError) = await _rfcClient.GetSyslogCountsAsync(
+                _config.SyslogWindowMinutes, cancellationToken);
+            if (slError != null)
+            {
+                issues.Add($"Syslog check failed: {slError}");
+            }
+            else
+            {
+                result.Metrics["SyslogAborts"]   = aborts;
+                result.Metrics["SyslogErrors"]   = errors;
+                result.Metrics["SyslogWarnings"] = warns;
+                if (aborts > 0)
+                {
+                    issues.Add($"{aborts} ABORT message(s) in syslog");
+                    if (status < HealthStatus.Unhealthy) status = HealthStatus.Unhealthy;
+                }
+                else if (errors >= _config.SyslogErrorWarningThreshold)
+                {
+                    issues.Add($"{errors} ERROR message(s) in syslog (last {_config.SyslogWindowMinutes} min)");
+                    if (status < HealthStatus.Degraded) status = HealthStatus.Degraded;
+                }
+            }
+        }
+
         result.Status = status;
         result.Message = issues.Count > 0
             ? string.Join("; ", issues)
